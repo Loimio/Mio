@@ -1593,10 +1593,12 @@
                         <div v-if="entry.audios && entry.audios.length" class="audio-preview-container">
                             <div v-for="(audio, audioIndex) in entry.audios" :key="audioIndex" class="audio-item">
                                 <span class="audio-name">{{ audio.name }}</span>
-                                <audio controls>
-                                    <source :src="`${audio.data}?t=${audio.timestamp || ''}`" :type="audio.type">
-                                    您的浏览器不支持音频播放。
-                                </audio>
+                                <div class="audio-wrapper">
+                                    <audio controls>
+                                        <source :src="`${audio.data}?t=${audio.timestamp || ''}`" :type="audio.type">
+                                        您的浏览器不支持音频播放。
+                                    </audio>
+                                </div>
                             </div>
                         </div>
                         
@@ -1648,10 +1650,12 @@
                                  class="audio-item"
                                  :class="{ 'uploading': audio.isUploading }">
                                 <span class="audio-name">{{ audio.name }}</span>
-                                <audio :id="audio.id" controls :key="audio.id + '_' + audio.timestamp">
-                                    <source :src="audio.data + '?v=' + audio.timestamp" :type="audio.type">
-                                    您的浏览器不支持音频播放。
-                                </audio>
+                                <div class="audio-wrapper">
+                                    <audio :id="audio.id" controls :key="audio.id + '_' + audio.timestamp">
+                                        <source :src="audio.data + '?v=' + audio.timestamp" :type="audio.type">
+                                        您的浏览器不支持音频播放。
+                                    </audio>
+                                </div>
                                 <div v-if="audio.isUploading" class="audio-upload-indicator">
                                     <span>上传中 {{ audio.uploadProgress || 0 }}%</span>
                                     <div class="upload-progress">
@@ -1727,10 +1731,12 @@
                                          class="audio-item"
                                          :class="{ 'uploading': audio.isUploading }">
                                         <span class="audio-name">{{ audio.name }}</span>
-                                        <audio :id="audio.id" controls :key="audio.id + '_' + audio.timestamp">
-                                            <source :src="`${audio.data}?t=${audio.timestamp || ''}`" :type="audio.type">
-                                            您的浏览器不支持音频播放。
-                                        </audio>
+                                        <div class="audio-wrapper">
+                                            <audio :id="audio.id" controls :key="audio.id + '_' + audio.timestamp">
+                                                <source :src="`${audio.data}?t=${audio.timestamp || ''}`" :type="audio.type">
+                                                您的浏览器不支持音频播放。
+                                            </audio>
+                                        </div>
                                         <div v-if="audio.isUploading" class="audio-upload-indicator">
                                             <span>上传中 {{ audio.uploadProgress || 0 }}%</span>
                                             <div class="upload-progress">
@@ -1777,10 +1783,12 @@
                         <div v-if="entry.audios && entry.audios.length" class="audio-preview-container">
                             <div v-for="(audio, audioIndex) in entry.audios" :key="audioIndex" class="audio-item">
                                 <span class="audio-name">{{ audio.name }}</span>
-                                <audio controls>
-                                    <source :src="`${audio.data}?t=${audio.timestamp || ''}`" :type="audio.type">
-                                    您的浏览器不支持音频播放。
-                                </audio>
+                                <div class="audio-wrapper">
+                                    <audio controls>
+                                        <source :src="`${audio.data}?t=${audio.timestamp || ''}`" :type="audio.type">
+                                        您的浏览器不支持音频播放。
+                                    </audio>
+                                </div>
                             </div>
                         </div>
                         
