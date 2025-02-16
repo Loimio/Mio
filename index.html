@@ -2,9 +2,12 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>风痕·旅行者与流浪者</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- 添加 Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <link rel="icon" href="风元素.png" type="image/png">
     <style>
         :root {
@@ -939,6 +942,140 @@
         [v-cloak] {
             display: none;
         }
+
+        /* 移动端导航栏样式 */
+        @media (max-width: 768px) {
+            .nav-bar {
+                padding: 0.5rem 1rem;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .nav-links {
+                width: 100%;
+                justify-content: space-around;
+                padding: 0.5rem 0;
+            }
+
+            .nav-link {
+                font-size: 0.85rem;
+                padding: 0.3rem 0.6rem;
+            }
+        }
+
+        /* 移动端内容卡片样式 */
+        @media (max-width: 768px) {
+            .content-card {
+                margin: 0.5rem;
+                padding: 1rem;
+            }
+
+            .entry-card {
+                padding: 0.8rem;
+            }
+
+            .card-modal {
+                width: 95%;
+                padding: 1rem;
+                margin: 0 auto;
+            }
+
+            .modal-content {
+                padding: 0.8rem;
+            }
+
+            .form-group {
+                gap: 1rem;
+            }
+
+            .title-input,
+            .content-input {
+                width: 100%;
+                padding: 10px;
+            }
+
+            /* 修改聊天记录列表布局 */
+            .chat-list {
+                grid-template-columns: 1fr;  /* 单列显示 */
+                gap: 20px;
+                padding: 10px;
+            }
+
+            .chat-card {
+                width: 100% !important;
+                min-height: 500px;  /* 减小移动端最小高度 */
+                margin: 5px 0;
+            }
+
+            /* 优化图片预览 */
+            .image-preview-container {
+                gap: 5px;
+            }
+
+            .image-thumbnail {
+                width: 80px;
+                height: 80px;
+            }
+
+            /* 优化音频播放器 */
+            .audio-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .audio-item audio {
+                width: 100%;
+                max-width: none;
+            }
+        }
+
+        /* 移动端图片查看器样式 */
+        @media (max-width: 768px) {
+            .image-viewer-content {
+                width: 95%;
+            }
+
+            .image-viewer-nav {
+                padding: 10px;
+                font-size: 16px;
+            }
+
+            .image-viewer-prev {
+                left: 10px;
+            }
+
+            .image-viewer-next {
+                right: 10px;
+            }
+        }
+
+        /* 移动端表单控件样式 */
+        @media (max-width: 768px) {
+            .password-input,
+            .unlock-button {
+                width: 100%;
+                max-width: none;
+                padding: 10px 15px;
+            }
+
+            .chat-textarea {
+                min-height: 100px;
+            }
+
+            .save-button {
+                width: 100%;
+                margin-top: 10px;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .modal-button {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1242,84 +1379,61 @@
     </div>
 
     <script>
-        const { createApp } = Vue;
-
-        // 在 createApp 之前添加初始状态对象
-        const initialState = {
-            privateUnlocked: false,
-            privatePassword: '',
-            privateEntries: [],
-            showPrivateModal: false,
-            showFullContentModal: false,
-            showDailyModal: false,
-            showImageViewer: false,
-            showChatInput: false,
-            selectedEntry: null,
-            activeCard: null,
-            currentImageIndex: 0,
-            currentViewingImages: [],
-            editingIndex: -1,
-            editingPrivateIndex: -1,
-            dailyCurrentPage: 1,
-            privateCurrentPage: 1,
-            dailyEntries: [],
-            chatRecords: [],
-            newChatContent: '',
-            chatFilter: '',
-            newEntry: {
-                title: '',
-                content: '',
-                images: [],
-                audios: []
-            },
-            newPrivateEntry: {
-                title: '',
-                content: '',
-                images: [],
-                audios: []
-            },
-            pageSize: 10
+        // 初始化 Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDC8Aud6B-hQBtjrOY-4-9DVWp39X3jSDI",
+            authDomain: "loimio-7f12e.firebaseapp.com",
+            databaseURL: "https://loimio-7f12e-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "loimio-7f12e",
+            storageBucket: "loimio-7f12e.firebasestorage.app",
+            messagingSenderId: "930247682950",
+            appId: "1:930247682950:web:356f7f96ebaa5bd96b5a07",
+            measurementId: "G-EBQQ2QBZ9T"
         };
 
-        // 修改 createApp 部分的初始化
-        // 创建 Vue 实例前先隐藏内容
-        document.getElementById('app').style.display = 'none';
+        // 初始化 Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-        createApp({
+        // 创建 Vue 应用
+        const { createApp } = Vue;
+        const app = createApp({
             data() {
-                // 先尝试加载存储的数据
-                let storedData = {
+                return {
                     dailyEntries: [],
                     privateEntries: [],
-                    chatRecords: []
-                };
-                
-                try {
-                    const dailyData = localStorage.getItem('dailyEntries');
-                    if (dailyData) {
-                        storedData.dailyEntries = JSON.parse(dailyData);
-                    }
-                    
-                    const privateData = localStorage.getItem('privateEntries');
-                    if (privateData) {
-                        storedData.privateEntries = JSON.parse(privateData);
-                    }
-                    
-                    const chatData = localStorage.getItem('chatRecords');
-                    if (chatData) {
-                        storedData.chatRecords = JSON.parse(chatData);
-                    }
-                } catch (error) {
-                    console.warn('加载存储数据失败:', error);
+                    chatRecords: [],
+                    showDailyModal: false,
+                    showPrivateModal: false,
+                    showFullContentModal: false,
+                    showImageViewer: false,
+                    activeCard: null,
+                    selectedEntry: null,
+                    editingIndex: -1,
+                    editingPrivateIndex: -1,
+                    privatePassword: '',
+                    privateUnlocked: false,
+                    newEntry: {
+                        title: '',
+                        content: '',
+                        images: [],
+                        audios: []
+                    },
+                    newPrivateEntry: {
+                        title: '',
+                        content: '',
+                        images: [],
+                        audios: []
+                    },
+                    newChatContent: '',
+                    chatFilter: '',
+                    currentImageIndex: 0,
+                    currentViewingImages: [],
+                    dailyCurrentPage: 1,
+                    privateCurrentPage: 1,
+                    pageSize: 10
                 }
-
-                // 合并初始状态和存储的数据
-                return {
-                    ...JSON.parse(JSON.stringify(initialState)),
-                    ...storedData
-                };
             },
-
             computed: {
                 // 修改日常生活分页数据计算方法
                 paginatedDailyEntries() {
@@ -1378,44 +1492,165 @@
                         });
                     });
 
-                    // 初始化完成后显示内容
-                    this.$nextTick(() => {
-                        document.getElementById('app').style.display = '';
+                    // 加载数据
+                    this.loadStoredData();
+                    
+                    // 实时监听数据变化
+                    db.ref('dailyEntries').on('value', (snapshot) => {
+                        this.dailyEntries = Object.values(snapshot.val() || {});
                     });
+                    
+                    db.ref('privateEntries').on('value', (snapshot) => {
+                        this.privateEntries = Object.values(snapshot.val() || {});
+                    });
+                    
+                    db.ref('chatRecords').on('value', (snapshot) => {
+                        this.chatRecords = Object.values(snapshot.val() || {});
+                    });
+
+                    // 验证数据迁移
+                    this.verifyDataMigration();
+
                 } catch (error) {
-                    console.warn('初始化过程中出现非致命错误:', error.message);
+                    console.error('初始化过程中出现错误:', error);
+                }
+
+                // 添加移动端触摸支持
+                if ('ontouchstart' in window) {
+                    let touchStartX = 0;
+                    let touchEndX = 0;
+
+                    document.addEventListener('touchstart', (e) => {
+                        touchStartX = e.changedTouches[0].screenX;
+                    }, false);
+
+                    document.addEventListener('touchend', (e) => {
+                        touchEndX = e.changedTouches[0].screenX;
+                        const diffX = touchEndX - touchStartX;
+
+                        // 在图片查看器打开时才处理滑动
+                        if (this.showImageViewer) {
+                            if (diffX > 50) { // 向右滑动
+                                this.prevImage();
+                            } else if (diffX < -50) { // 向左滑动
+                                this.nextImage();
+                            }
+                        }
+                    }, false);
                 }
             },
 
             methods: {
-                loadStoredData() {
+                // 加载数据
+                async loadStoredData() {
                     try {
-                        const dailyData = localStorage.getItem('dailyEntries');
-                        if (dailyData) {
-                            this.dailyEntries = JSON.parse(dailyData);
-                        }
-                    } catch (error) {
-                        console.warn('加载数据失败，使用空数组');
-                    }
+                        // 读取日常记录
+                        const dailySnapshot = await db.ref('dailyEntries').once('value');
+                        this.dailyEntries = Object.values(dailySnapshot.val() || {});
 
-                    try {
-                        const privateData = localStorage.getItem('privateEntries');
-                        if (privateData) {
-                            this.privateEntries = JSON.parse(privateData);
-                        }
-                    } catch (error) {
-                        console.warn('加载数据失败，使用空数组');
-                        this.privateEntries = [];
-                    }
+                        // 读取私密记录
+                        const privateSnapshot = await db.ref('privateEntries').once('value');
+                        this.privateEntries = Object.values(privateSnapshot.val() || {});
 
-                    try {
-                        const chatData = localStorage.getItem('chatRecords');
-                        if (chatData) {
-                            this.chatRecords = JSON.parse(chatData);
-                        }
+                        // 读取聊天记录
+                        const chatSnapshot = await db.ref('chatRecords').once('value');
+                        this.chatRecords = Object.values(chatSnapshot.val() || {});
                     } catch (error) {
-                        console.warn('加载数据失败，使用空数组');
-                        this.chatRecords = [];
+                        console.error('加载数据失败:', error);
+                    }
+                },
+
+                // 保存日常记录
+                async saveDailyEntry() {
+                    try {
+                        const entry = {
+                            title: this.newEntry.title || '',
+                            content: this.newEntry.content || '',
+                            images: this.newEntry.images.map(img => ({
+                                url: img.url,
+                                display_url: img.display_url,
+                                thumb_url: img.thumb_url
+                            })),
+                            audios: this.newEntry.audios.map(audio => ({
+                                name: audio.name,
+                                id: audio.id,
+                                data: audio.data.split('?')[0],
+                                type: audio.type,
+                                public_id: audio.public_id,
+                                timestamp: audio.timestamp
+                            })),
+                            created: new Date().toISOString()
+                        };
+
+                        if (this.editingIndex >= 0) {
+                            // 更新现有记录
+                            await db.ref(`dailyEntries/${this.editingIndex}`).set(entry);
+                        } else {
+                            // 添加新记录
+                            await db.ref('dailyEntries').push(entry);
+                        }
+
+                        // 重新加载数据
+                        await this.loadStoredData();
+                        
+                        // 重置表单
+                        this.newEntry = {
+                            title: '',
+                            content: '',
+                            images: [],
+                            audios: []
+                        };
+                        this.editingIndex = -1;
+                        this.showDailyModal = false;
+                    } catch (error) {
+                        console.error('保存失败:', error);
+                        alert('保存失败，请重试');
+                    }
+                },
+
+                // 删除日常记录
+                async deleteDailyEntry(index, event) {
+                    event.stopPropagation();
+                    if (confirm('确定要删除这条记录吗？')) {
+                        try {
+                            const actualIndex = this.dailyEntries.length - 1 - ((this.dailyCurrentPage - 1) * this.pageSize + index);
+                            await db.ref(`dailyEntries/${actualIndex}`).remove();
+                            await this.loadStoredData();
+                        } catch (error) {
+                            console.error('删除失败:', error);
+                            alert('删除失败，请重试');
+                        }
+                    }
+                },
+
+                // 保存聊天记录
+                async saveChatEntry() {
+                    if (!this.newChatContent.trim()) return;
+                    
+                    try {
+                        await db.ref('chatRecords').push({
+                            content: this.newChatContent,
+                            timestamp: new Date().toISOString()
+                        });
+                        
+                        this.newChatContent = '';
+                        await this.loadStoredData();
+                    } catch (error) {
+                        console.error('保存聊天记录失败:', error);
+                        alert('保存失败，请重试');
+                    }
+                },
+
+                // 删除聊天记录
+                async deleteChat(index) {
+                    if(confirm('确定要删除这条聊天记录吗？')) {
+                        try {
+                            await db.ref(`chatRecords/${index}`).remove();
+                            await this.loadStoredData();
+                        } catch (error) {
+                            console.error('删除失败:', error);
+                            alert('删除失败，请重试');
+                        }
                     }
                 },
 
@@ -1571,36 +1806,6 @@
                         });
                     }
                 },
-                deleteDailyEntry(index, event) {
-                    event.stopPropagation();
-                    if (confirm('确定要删除这条记录吗？')) {
-                        // 获取实际的数组索引（考虑分页和反转）
-                        const actualIndex = this.dailyEntries.length - 1 - ((this.dailyCurrentPage - 1) * this.pageSize + index);
-                        
-                        // 创建新数组并删除指定项
-                        const updatedEntries = [...this.dailyEntries];
-                        updatedEntries.splice(actualIndex, 1);
-                        
-                        // 更新数据
-                        this.dailyEntries = updatedEntries;
-                        localStorage.setItem('dailyEntries', JSON.stringify(updatedEntries));
-                        
-                        // 调整页码
-                        const maxPage = Math.ceil(updatedEntries.length / this.pageSize);
-                        if (this.dailyCurrentPage > maxPage) {
-                            this.dailyCurrentPage = maxPage || 1;
-                        }
-                    }
-                },
-
-                deleteChat(index) {
-                    if(confirm('确定要删除这条聊天记录吗？')) {
-                        this.chatRecords.splice(index, 1);
-                        localStorage.setItem('chatRecords', JSON.stringify(this.chatRecords));
-                        this.chatRecords = [...this.chatRecords]; // 强制触发响应式更新
-                    }
-                },
-
                 deletePrivateEntry(index, event) {
                     event.stopPropagation();
                     if (confirm('确定要删除这条记录吗？')) {
@@ -1622,7 +1827,7 @@
                         }
                     }
                 },
-                
+
                 savePrivateEntries() {
                     try {
                         localStorage.setItem('privateEntries', JSON.stringify(this.privateEntries));
@@ -1788,170 +1993,6 @@
                         img.src = base64String;
                     });
                 },
-                async saveDailyEntry() {
-                    try {
-                        const isEditing = this.editingIndex >= 0;  // 在保存前保存编辑状态
-                        const entry = {
-                            title: this.newEntry.title || '',
-                            content: this.newEntry.content ? this.newEntry.content.replace(/\n/g, '\n') : '',
-                            images: this.newEntry.images.map(img => {
-                                return typeof img === 'string' ? img : {
-                                    url: img.url,
-                                    display_url: img.display_url,
-                                    thumb_url: img.thumb_url
-                                };
-                            }),
-                            audios: this.newEntry.audios.map(audio => ({
-                                name: audio.name,
-                                id: audio.id,
-                                data: audio.data.split('?')[0],
-                                type: audio.type,
-                                public_id: audio.public_id,
-                                timestamp: audio.timestamp
-                            })),
-                            created: new Date()
-                        };
-
-                        const updatedEntries = [...this.dailyEntries];
-                        
-                        if (isEditing) {  // 使用保存的编辑状态
-                            updatedEntries[this.editingIndex] = entry;
-                        } else {
-                            updatedEntries.push(entry);
-                        }
-
-                        localStorage.setItem('dailyEntries', JSON.stringify(updatedEntries));
-                        this.dailyEntries = updatedEntries;
-                        
-                        // 重置表单
-                        this.newEntry = {
-                            title: '',
-                            content: '',
-                            images: [],
-                            audios: []
-                        };
-                        this.editingIndex = -1;
-                        this.showDailyModal = false;
-
-                        // 如果是新增记录，跳转到第一页并滚动到顶部
-                        if (!isEditing) {  // 使用保存的编辑状态
-                            this.dailyCurrentPage = 1;
-                            // 等待 DOM 更新后滚动到顶部
-                            this.$nextTick(() => {
-                                const dailySection = document.getElementById('daily');
-                                if (dailySection) {
-                                    dailySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                }
-                            });
-                        } else {
-                            // 如果是编辑记录，保持在当前页面，不进行滚动
-                            this.$nextTick(() => {
-                                // 强制更新视图
-                                this.dailyEntries = [...this.dailyEntries];
-                            });
-                        }
-
-                        // 最后再重置 editingIndex
-                        this.editingIndex = -1;
-
-                    } catch (error) {
-                        console.warn('保存失败:', error.message);
-                        this.$nextTick(() => {
-                            if (error.message !== 'user cancelled') {
-                                alert('保存失败，请重试');
-                            }
-                        });
-                    }
-                },
-                openEditModal(index) {
-                    const actualIndex = this.dailyEntries.length - 1 - ((this.dailyCurrentPage - 1) * this.pageSize + index);
-                    this.editingIndex = actualIndex;
-                    const entry = this.dailyEntries[actualIndex];
-                    
-                    // 为已有的音频生成新的时间戳
-                    const audios = Array.isArray(entry.audios) ? entry.audios.map(audio => {
-                        const timestamp = Date.now();
-                        return {
-                            ...audio,
-                            id: audio.id || `audio_${timestamp}_${Math.random().toString(36).substr(2, 9)}`,
-                            data: audio.data + '?v=' + timestamp,
-                            timestamp: timestamp
-                        };
-                    }) : [];
-
-                    this.newEntry = {
-                        title: entry.title || '',
-                        content: entry.content || '',
-                        images: Array.isArray(entry.images) ? [...entry.images] : [],
-                        audios
-                    };
-                    
-                    // 强制刷新音频元素
-                    this.$nextTick(() => {
-                        this.newEntry.audios.forEach(audio => {
-                            const audioElement = document.querySelector(`#${audio.id}`);
-                            if (audioElement) {
-                                audioElement.src = audio.data;
-                                audioElement.load();
-                                audioElement.currentTime = 0;
-                            }
-                        });
-                    });
-                    
-                    this.showDailyModal = true;
-                },
-
-                // 聊天记录板块方法  
-                refreshPrivateList() {
-                    this.privateEntries = JSON.parse(localStorage.getItem('privateEntries') || '[]');
-                },
-                previewPrivateFile(file) {
-                    if(file.type.startsWith('image/') || file.type.startsWith('video/')) {
-                        window.open(file.data, '_blank');
-                    } else {
-                        alert('该文件类型需要下载查看');
-                    }
-                },
-                formatDate(dateString) {
-                    return new Date(dateString).toLocaleDateString();
-                },
-
-                // 图片查看器相关方法
-                openImageViewer(images, startIndex) {
-                    this.currentViewingImages = images.map(img => {
-                        if (typeof img === 'string') return img;
-                        return img.display_url || img.url;
-                    });
-                    this.currentImageIndex = startIndex;
-                    this.showImageViewer = true;
-                },
-
-                prevImage() {
-                    if (this.currentImageIndex > 0) {
-                        this.currentImageIndex--;
-                    }
-                },
-
-                nextImage() {
-                    if (this.currentImageIndex < this.currentViewingImages.length - 1) {
-                        this.currentImageIndex++;
-                    }
-                },
-
-                removeImage(index) {
-                    if (Array.isArray(this.newEntry.images)) {
-                        // 如果图片正在上传，不允许删除
-                        if (this.newEntry.images[index].isUploading) {
-                            return;
-                        }
-                        // 删除图片
-                        this.$nextTick(() => {
-                            this.newEntry.images.splice(index, 1);
-                        });
-                    }
-                },
-
-                // 修改图床上传方法
                 async uploadToImageHost(base64Data) {
                     try {
                         console.log('开始上传图片...');
@@ -2300,16 +2341,6 @@
                         xhr.send(formData);
                     });
                 },
-                saveChatEntry() {
-                    if (!this.newChatContent.trim()) return;
-                    
-                    this.chatRecords.push({
-                        content: this.newChatContent,
-                        timestamp: new Date().toLocaleString()
-                    });
-                    localStorage.setItem('chatRecords', JSON.stringify(this.chatRecords));
-                    this.newChatContent = '';
-                },
                 handleError(error, silent = false) {
                     console.error(error);
                     if (!silent) {
@@ -2323,6 +2354,54 @@
                     }
                     this.newPrivateEntry.audios = this.newPrivateEntry.audios.filter((_, i) => i !== index);
                 },
+                // 添加数据迁移方法
+                async migrateLocalDataToFirebase() {
+                    try {
+                        // 获取本地数据
+                        const localDailyEntries = JSON.parse(localStorage.getItem('dailyEntries') || '[]');
+                        const localPrivateEntries = JSON.parse(localStorage.getItem('privateEntries') || '[]');
+                        const localChatRecords = JSON.parse(localStorage.getItem('chatRecords') || '[]');
+
+                        // 上传到 Firebase
+                        if (localDailyEntries.length > 0) {
+                            await db.ref('dailyEntries').set(localDailyEntries);
+                        }
+                        if (localPrivateEntries.length > 0) {
+                            await db.ref('privateEntries').set(localPrivateEntries);
+                        }
+                        if (localChatRecords.length > 0) {
+                            await db.ref('chatRecords').set(localChatRecords);
+                        }
+
+                        console.log('数据迁移完成');
+                        alert('数据迁移成功！');
+                    } catch (error) {
+                        console.error('数据迁移失败:', error);
+                        alert('数据迁移失败，请查看控制台');
+                    }
+                },
+                async verifyDataMigration() {
+                    try {
+                        // 检查 Firebase 中是否已有数据
+                        const snapshot = await db.ref().once('value');
+                        const firebaseData = snapshot.val();
+                        
+                        if (!firebaseData) {
+                            // 如果 Firebase 中没有数据，但本地有数据，则提示迁移
+                            const hasLocalData = localStorage.getItem('dailyEntries') || 
+                                   localStorage.getItem('privateEntries') || 
+                                   localStorage.getItem('chatRecords');
+                            
+                            if (hasLocalData) {
+                                if (confirm('检测到本地数据，是否要迁移到云端？')) {
+                                    await this.migrateLocalDataToFirebase();
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error('验证数据迁移失败:', error);
+                    }
+                }
             },
             watch: {
                 // 监听数组长度变化，自动调整页码
@@ -2339,7 +2418,12 @@
                     }
                 }
             }
-        }).mount('#app')
+        });
+
+        // 等待 DOM 加载完成后挂载
+        document.addEventListener('DOMContentLoaded', () => {
+            app.mount('#app');
+        });
     </script>
 </body>
 </html>
