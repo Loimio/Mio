@@ -735,13 +735,16 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 2100;
+            z-index: 2000;
         }
 
         .image-viewer-content {
-            max-width: 90%;
-            max-height: 90vh;
             position: relative;
+            max-width: 100%;
+            max-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .image-viewer-content img {
@@ -752,34 +755,39 @@
 
         .image-viewer-close {
             position: absolute;
-            top: -40px;
-            right: 0;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.5);
             color: white;
-            background: none;
             border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
             font-size: 24px;
             cursor: pointer;
+            z-index: 2001;
         }
 
         .image-viewer-nav {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
             color: white;
-            background: rgba(0, 0, 0, 0.5);
+            padding: 15px 10px;
             border: none;
-            padding: 15px;
+            border-radius: 4px;
+            font-size: 18px;
             cursor: pointer;
-            border-radius: 50%;
-            font-size: 20px;
+            z-index: 2001;
         }
 
         .image-viewer-prev {
-            left: -60px;
+            left: 5px;
         }
 
         .image-viewer-next {
-            right: -60px;
+            right: 5px;
         }
 
         .image-preview-item {
@@ -1034,7 +1042,7 @@
             .image-viewer-content {
                 width: 95%;
             }
-
+            
             .image-viewer-nav {
                 padding: 10px;
                 font-size: 16px;
@@ -1074,6 +1082,98 @@
 
             .modal-button {
                 width: 100%;
+            }
+        }
+
+        /* 移动端模态框样式优化 */
+        @media (max-width: 768px) {
+            .modal-overlay {
+                padding: 0;
+            }
+
+            .card-modal {
+                width: 100%;
+                height: 100vh;
+                margin: 0;
+                border-radius: 0;
+                padding: 1rem;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .modal-content {
+                flex: 1;
+                overflow-y: auto;
+                padding: 1rem 0;
+            }
+
+            .form-group {
+                gap: 1rem;
+            }
+
+            .title-input,
+            .content-input {
+                width: 100%;
+                padding: 12px;
+                font-size: 16px;
+            }
+
+            .modal-actions {
+                position: sticky;
+                bottom: 0;
+                background: white;
+                padding: 1rem 0;
+                margin-top: auto;
+            }
+
+            .modal-close {
+                position: absolute;
+                top: 0.5rem;
+                right: 0.5rem;
+                padding: 0.5rem;
+                font-size: 1.5rem;
+            }
+        }
+
+        /* 移动端音频播放器样式优化 */
+        @media (max-width: 768px) {
+            .audio-item {
+                flex-direction: column;
+                padding: 0.8rem;
+                gap: 0.5rem;
+            }
+
+            .audio-item audio {
+                width: 100%;
+                margin-top: 0.5rem;
+            }
+
+            .audio-name {
+                font-size: 0.85rem;
+                width: 100%;
+            }
+
+            .remove-audio-btn {
+                position: absolute;
+                top: 0.5rem;
+                right: 0.5rem;
+            }
+        }
+
+        /* 移动端分页控件样式优化 */
+        @media (max-width: 768px) {
+            .pagination {
+                padding: 1rem 0;
+                gap: 0.5rem;
+            }
+
+            .pagination button {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+
+            .pagination span {
+                font-size: 0.9rem;
             }
         }
     </style>
@@ -1147,7 +1247,7 @@
                         </div>
                         
                         <div class="entry-actions">
-                            <button @click.stop="openEditModal(index)">编辑</button>
+                            <button @click.stop="openDailyModal(index)" class="edit-button">编辑</button>
                             <button @click="deleteDailyEntry(index, $event)" class="delete-btn">删除</button>
                         </div>
                     </div>
@@ -1331,7 +1431,7 @@
                         </div>
                         
                         <div class="entry-actions">
-                            <button @click.stop="openPrivateEditModal(index)">编辑</button>
+                            <button @click.stop="openPrivateModal(index)" class="edit-button">编辑</button>
                             <button @click="deletePrivateEntry(index, $event)" class="delete-btn">删除</button>
                         </div>
                     </div>
@@ -1568,11 +1668,13 @@
                         const entry = {
                             title: this.newEntry.title || '',
                             content: this.newEntry.content || '',
-                            images: this.newEntry.images.map(img => ({
-                                url: img.url,
-                                display_url: img.display_url,
-                                thumb_url: img.thumb_url
-                            })),
+                            images: this.newEntry.images.map(img => {
+                                return typeof img === 'string' ? img : {
+                                    url: img.url,
+                                    display_url: img.display_url,
+                                    thumb_url: img.thumb_url
+                                };
+                            }),
                             audios: this.newEntry.audios.map(audio => ({
                                 name: audio.name,
                                 id: audio.id,
@@ -1584,7 +1686,7 @@
                             created: new Date().toISOString()
                         };
 
-                        if (this.editingIndex >= 0) {
+                        if (this.editingIndex && this.editingIndex !== -1) {
                             // 更新现有记录
                             await db.ref(`dailyEntries/${this.editingIndex}`).set(entry);
                         } else {
@@ -1615,8 +1717,19 @@
                     event.stopPropagation();
                     if (confirm('确定要删除这条记录吗？')) {
                         try {
-                            const actualIndex = this.dailyEntries.length - 1 - ((this.dailyCurrentPage - 1) * this.pageSize + index);
-                            await db.ref(`dailyEntries/${actualIndex}`).remove();
+                            // 获取所有记录的键
+                            const snapshot = await db.ref('dailyEntries').once('value');
+                            const entries = snapshot.val();
+                            const keys = Object.keys(entries);
+                            
+                            // 计算实际索引（考虑分页和反转）
+                            const actualIndex = keys.length - 1 - ((this.dailyCurrentPage - 1) * this.pageSize + index);
+                            const keyToDelete = keys[actualIndex];
+                            
+                            // 删除记录
+                            await db.ref(`dailyEntries/${keyToDelete}`).remove();
+                            
+                            // 重新加载数据
                             await this.loadStoredData();
                         } catch (error) {
                             console.error('删除失败:', error);
@@ -1709,17 +1822,49 @@
                     this.showFullContentModal = true;
                 },
                 // 私密内容管理方法
-                openPrivateModal(index = -1) {
-                    this.editingPrivateIndex = index;
-                    if(index >= 0) {
-                        this.newPrivateEntry = {...this.privateEntries[index]};
+                async openPrivateModal(index = -1) {
+                    if (index >= 0) {
+                        // 如果是编辑现有记录
+                        try {
+                            // 获取所有记录的键
+                            const snapshot = await db.ref('privateEntries').once('value');
+                            const entries = snapshot.val() || {};
+                            const keys = Object.keys(entries);
+                            
+                            // 计算实际索引
+                            const actualIndex = keys.length - 1 - ((this.privateCurrentPage - 1) * this.pageSize + index);
+                            const keyToEdit = keys[actualIndex];
+                            
+                            // 获取要编辑的记录
+                            const entry = entries[keyToEdit];
+                            
+                            // 设置编辑状态
+                            this.editingPrivateIndex = keyToEdit;
+                            this.newPrivateEntry = {
+                                title: entry.title || '',
+                                content: entry.content || '',
+                                images: Array.isArray(entry.images) ? [...entry.images] : [],
+                                audios: Array.isArray(entry.audios) ? entry.audios.map(audio => ({
+                                    ...audio,
+                                    id: audio.id || `audio_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                                    data: audio.data + '?v=' + (audio.timestamp || Date.now()),
+                                    timestamp: audio.timestamp || Date.now()
+                                })) : []
+                            };
+                        } catch (error) {
+                            console.error('打开编辑模态框失败:', error);
+                            alert('操作失败，请重试');
+                            return;
+                        }
                     } else {
+                        // 如果是新建记录
+                        this.editingPrivateIndex = -1;
                         this.newPrivateEntry = { 
                             title: '', 
                             content: '', 
                             images: [],
                             audios: [],
-                            created: new Date().toLocaleString()
+                            created: new Date().toISOString()
                         };
                     }
                     this.showPrivateModal = true;
@@ -1738,12 +1883,11 @@
                         reader.readAsDataURL(files[i]);
                     }
                 },
-                savePrivateEntry() {
+                async savePrivateEntry() {
                     try {
-                        const isEditing = this.editingPrivateIndex >= 0;
                         const entry = {
                             title: this.newPrivateEntry.title || '',
-                            content: this.newPrivateEntry.content ? this.newPrivateEntry.content.replace(/\n/g, '\n') : '',
+                            content: this.newPrivateEntry.content || '',
                             images: this.newPrivateEntry.images.map(img => {
                                 return typeof img === 'string' ? img : {
                                     url: img.url,
@@ -1759,20 +1903,19 @@
                                 public_id: audio.public_id,
                                 timestamp: audio.timestamp
                             })),
-                            created: new Date()
+                            created: new Date().toISOString()
                         };
 
-                        const updatedEntries = [...this.privateEntries];
-                        
-                        if (isEditing) {
-                            updatedEntries[this.editingPrivateIndex] = entry;
+                        if (this.editingPrivateIndex && this.editingPrivateIndex !== -1) {
+                            // 更新现有记录，直接使用 editingPrivateIndex 作为键
+                            await db.ref(`privateEntries/${this.editingPrivateIndex}`).set(entry);
                         } else {
-                            updatedEntries.push(entry);
+                            // 添加新记录
+                            await db.ref('privateEntries').push(entry);
                         }
 
-                        localStorage.setItem('privateEntries', JSON.stringify(updatedEntries));
-                        this.privateEntries = updatedEntries;
-                        this.privateCurrentPage = 1; // 保存后返回第一页
+                        // 重新加载数据
+                        await this.loadStoredData();
                         
                         // 重置表单
                         this.newPrivateEntry = {
@@ -1783,49 +1926,32 @@
                         };
                         this.editingPrivateIndex = -1;
                         this.showPrivateModal = false;
-
-                        if (!isEditing) {
-                            this.privateCurrentPage = 1;
-                            this.$nextTick(() => {
-                                const privateSection = document.getElementById('private');
-                                if (privateSection) {
-                                    privateSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                }
-                            });
-                        } else {
-                            this.$nextTick(() => {
-                                this.privateEntries = [...this.privateEntries];
-                            });
-                        }
-                        
-                        this.editingPrivateIndex = -1;
                     } catch (error) {
-                        console.warn('保存失败:', error.message);
-                        this.$nextTick(() => {
-                            if (error.message !== 'user cancelled') {
-                                alert('保存失败，请重试');
-                            }
-                        });
+                        console.error('保存失败:', error);
+                        alert('保存失败，请重试');
                     }
                 },
-                deletePrivateEntry(index, event) {
+                async deletePrivateEntry(index, event) {
                     event.stopPropagation();
                     if (confirm('确定要删除这条记录吗？')) {
-                        // 获取实际的数组索引（考虑分页和反转）
-                        const actualIndex = this.privateEntries.length - 1 - ((this.privateCurrentPage - 1) * this.pageSize + index);
-                        
-                        // 创建新数组并删除指定项
-                        const updatedEntries = [...this.privateEntries];
-                        updatedEntries.splice(actualIndex, 1);
-                        
-                        // 更新数据
-                        this.privateEntries = updatedEntries;
-                        localStorage.setItem('privateEntries', JSON.stringify(updatedEntries));
-                        
-                        // 调整页码
-                        const maxPage = Math.ceil(updatedEntries.length / this.pageSize);
-                        if (this.privateCurrentPage > maxPage) {
-                            this.privateCurrentPage = maxPage || 1;
+                        try {
+                            // 获取所有记录的键
+                            const snapshot = await db.ref('privateEntries').once('value');
+                            const entries = snapshot.val() || {};
+                            const keys = Object.keys(entries);
+                            
+                            // 计算实际索引
+                            const actualIndex = keys.length - 1 - ((this.privateCurrentPage - 1) * this.pageSize + index);
+                            const keyToDelete = keys[actualIndex];
+                            
+                            // 删除记录
+                            await db.ref(`privateEntries/${keyToDelete}`).remove();
+                            
+                            // 重新加载数据
+                            await this.loadStoredData();
+                        } catch (error) {
+                            console.error('删除失败:', error);
+                            alert('删除失败，请重试');
                         }
                     }
                 },
@@ -2166,93 +2292,39 @@
                     }
                 },
 
-                async savePrivateEntry() {
+                async openPrivateEditModal(index) {
                     try {
-                        const isEditing = this.editingPrivateIndex >= 0;
-                        const entry = {
-                            title: this.newPrivateEntry.title || '',
-                            content: this.newPrivateEntry.content ? this.newPrivateEntry.content.replace(/\n/g, '\n') : '',
-                            images: this.newPrivateEntry.images.map(img => {
-                                return typeof img === 'string' ? img : {
-                                    url: img.url,
-                                    display_url: img.display_url,
-                                    thumb_url: img.thumb_url
-                                };
-                            }),
-                            audios: this.newPrivateEntry.audios.map(audio => ({
-                                name: audio.name,
-                                id: audio.id,
-                                data: audio.data.split('?')[0],
-                                type: audio.type,
-                                public_id: audio.public_id,
-                                timestamp: audio.timestamp
-                            })),
-                            created: new Date()
-                        };
-
-                        const updatedEntries = [...this.privateEntries];
+                        // 获取所有记录的键
+                        const snapshot = await db.ref('privateEntries').once('value');
+                        const entries = snapshot.val() || {};
+                        const keys = Object.keys(entries);
                         
-                        if (isEditing) {
-                            updatedEntries[this.editingPrivateIndex] = entry;
-                        } else {
-                            updatedEntries.push(entry);
-                        }
-
-                        localStorage.setItem('privateEntries', JSON.stringify(updatedEntries));
-                        this.privateEntries = updatedEntries;
-                        this.privateCurrentPage = 1; // 保存后返回第一页
+                        // 计算实际索引
+                        const actualIndex = keys.length - 1 - ((this.privateCurrentPage - 1) * this.pageSize + index);
+                        const keyToEdit = keys[actualIndex];
                         
-                        // 重置表单
+                        // 获取要编辑的记录
+                        const entry = entries[keyToEdit];
+                        
+                        // 设置编辑状态
+                        this.editingPrivateIndex = keyToEdit; // 修改这里：使用 keyToEdit 而不是 actualIndex
                         this.newPrivateEntry = {
-                            title: '',
-                            content: '',
-                            images: [],
-                            audios: []
+                            title: entry.title || '',
+                            content: entry.content || '',
+                            images: Array.isArray(entry.images) ? [...entry.images] : [],
+                            audios: Array.isArray(entry.audios) ? entry.audios.map(audio => ({
+                                ...audio,
+                                id: audio.id || `audio_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                                data: audio.data + '?v=' + (audio.timestamp || Date.now()),
+                                timestamp: audio.timestamp || Date.now()
+                            })) : []
                         };
-                        this.editingPrivateIndex = -1;
-                        this.showPrivateModal = false;
-
-                        if (!isEditing) {
-                            this.privateCurrentPage = 1;
-                            this.$nextTick(() => {
-                                const privateSection = document.getElementById('private');
-                                if (privateSection) {
-                                    privateSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                }
-                            });
-                        } else {
-                            this.$nextTick(() => {
-                                this.privateEntries = [...this.privateEntries];
-                            });
-                        }
                         
-                        this.editingPrivateIndex = -1;
+                        this.showPrivateModal = true;
                     } catch (error) {
-                        console.warn('保存失败:', error.message);
-                        this.$nextTick(() => {
-                            if (error.message !== 'user cancelled') {
-                                alert('保存失败，请重试');
-                            }
-                        });
+                        console.error('打开编辑模态框失败:', error);
+                        alert('操作失败，请重试');
                     }
-                },
-
-                openPrivateEditModal(index) {
-                    const actualIndex = this.privateEntries.length - 1 - ((this.privateCurrentPage - 1) * this.pageSize + index);
-                    this.editingPrivateIndex = actualIndex;
-                    const entry = this.privateEntries[actualIndex];
-                    this.newPrivateEntry = {
-                        title: entry.title || '',
-                        content: entry.content || '',
-                        images: Array.isArray(entry.images) ? [...entry.images] : [],
-                        audios: Array.isArray(entry.audios) ? entry.audios.map(audio => ({
-                            ...audio,
-                            id: audio.id || `audio_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                            data: audio.data + '?v=' + (audio.timestamp || Date.now()),
-                            timestamp: audio.timestamp || Date.now()
-                        })) : []
-                    };
-                    this.showPrivateModal = true;
                 },
 
                 // 修改滚动到顶部的方法
@@ -2435,6 +2507,53 @@
                 handleImageError(event) {
                     console.warn('图片加载失败:', event.target.src);
                     event.target.src = 'error-image.png'; // 可以设置一个默认的错误图片
+                },
+
+                // 添加 openDailyModal 方法
+                async openDailyModal(index = -1) {
+                    if (index >= 0) {
+                        try {
+                            // 获取所有记录的键
+                            const snapshot = await db.ref('dailyEntries').once('value');
+                            const entries = snapshot.val() || {};
+                            const keys = Object.keys(entries);
+                            
+                            // 计算实际索引
+                            const actualIndex = keys.length - 1 - ((this.dailyCurrentPage - 1) * this.pageSize + index);
+                            const keyToEdit = keys[actualIndex];
+                            
+                            // 获取要编辑的记录
+                            const entry = entries[keyToEdit];
+                            
+                            // 设置编辑状态
+                            this.editingIndex = keyToEdit;
+                            this.newEntry = {
+                                title: entry.title || '',
+                                content: entry.content || '',
+                                images: Array.isArray(entry.images) ? [...entry.images] : [],
+                                audios: Array.isArray(entry.audios) ? entry.audios.map(audio => ({
+                                    ...audio,
+                                    id: audio.id || `audio_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                                    data: audio.data + '?v=' + (audio.timestamp || Date.now()),
+                                    timestamp: audio.timestamp || Date.now()
+                                })) : []
+                            };
+                        } catch (error) {
+                            console.error('打开编辑模态框失败:', error);
+                            alert('操作失败，请重试');
+                            return;
+                        }
+                    } else {
+                        // 如果是新建记录
+                        this.editingIndex = -1;
+                        this.newEntry = {
+                            title: '',
+                            content: '',
+                            images: [],
+                            audios: []
+                        };
+                    }
+                    this.showDailyModal = true;
                 }
             },
             watch: {
