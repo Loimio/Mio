@@ -1132,7 +1132,7 @@
                                  :src="typeof image === 'string' ? image : (image.display_url || image.url)" 
                                  class="image-thumbnail"
                                  @click.stop="openImageViewer(entry.images, imgIndex)"
-                                 @error="handleImageError($event)">
+                                 @error="handleImageError">
                         </div>
                         
                         <!-- 添加音频播放器 -->
@@ -1316,7 +1316,7 @@
                                  :src="typeof image === 'string' ? image : (image.display_url || image.url)" 
                                  class="image-thumbnail"
                                  @click.stop="openImageViewer(entry.images, imgIndex)"
-                                 @error="handleImageError($event)">
+                                 @error="handleImageError">
                         </div>
                         
                         <!-- 添加音频播放器 -->
@@ -1370,7 +1370,9 @@
                 <button v-if="currentImageIndex > 0" 
                         class="image-viewer-nav image-viewer-prev" 
                         @click="prevImage">&lt;</button>
-                <img :src="currentViewingImages[currentImageIndex]" alt="Full size image">
+                <img :src="currentViewingImages[currentImageIndex]" 
+                     alt="Full size image"
+                     @error="handleImageError">
                 <button v-if="currentImageIndex < currentViewingImages.length - 1" 
                         class="image-viewer-nav image-viewer-next" 
                         @click="nextImage">&gt;</button>
@@ -2401,6 +2403,38 @@
                     } catch (error) {
                         console.error('验证数据迁移失败:', error);
                     }
+                },
+                // 修改打开图片查看器的方法
+                openImageViewer(images, startIndex) {
+                    this.currentViewingImages = images.map(img => {
+                        // 处理不同格式的图片数据
+                        if (typeof img === 'string') {
+                            return img;
+                        }
+                        // 优先使用 display_url，如果没有则使用 url
+                        return img.display_url || img.url || img.thumb_url;
+                    });
+                    this.currentImageIndex = startIndex;
+                    this.showImageViewer = true;
+                },
+
+                // 确保图片导航方法正确
+                prevImage() {
+                    if (this.currentImageIndex > 0) {
+                        this.currentImageIndex--;
+                    }
+                },
+
+                nextImage() {
+                    if (this.currentImageIndex < this.currentViewingImages.length - 1) {
+                        this.currentImageIndex++;
+                    }
+                },
+
+                // 添加图片错误处理
+                handleImageError(event) {
+                    console.warn('图片加载失败:', event.target.src);
+                    event.target.src = 'error-image.png'; // 可以设置一个默认的错误图片
                 }
             },
             watch: {
