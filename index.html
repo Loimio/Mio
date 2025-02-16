@@ -1808,15 +1808,16 @@
                 </div>
                 
                 <div class="chat-list">
-                    <div v-for="(message, index) in chatRecords" :key="index" 
-     class="chat-card entry-card"
-     style="padding: 1rem; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); width: 410px; height: 700px; margin: 0 auto; display: flex; flex-direction: column;">
-     <div class="entry-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; height: 40px;">
+                    <div v-for="(message, index) in sortedChatRecords" 
+                         :key="index" 
+                         class="chat-card entry-card"
+                         style="padding: 1rem; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); width: 410px; height: 700px; margin: 0 auto; display: flex; flex-direction: column;">
+                        <div class="entry-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; height: 40px;">
                             <span class="entry-date" style="font-size: 0.8em; color: #666;">{{ message.timestamp }}</span>
                             <button @click="deleteChat(index)" 
                                     style="background: none; border: none; color: #999; cursor: pointer;">×</button>
                         </div>
-    <div class="card-content" style="white-space: pre-wrap; line-height: 1.5;" v-html="renderChatContent(message.content)"></div>
+                        <div class="card-content" style="white-space: pre-wrap; line-height: 1.5;" v-html="renderChatContent(message.content)"></div>
                     </div>
                 </div>
             </div>
@@ -2039,6 +2040,12 @@
                 },
                 totalPrivatePages() {
                     return Math.ceil(this.privateEntries.length / this.pageSize);
+                },
+                sortedChatRecords() {
+                    // 返回按时间戳倒序排序的聊天记录
+                    return [...this.chatRecords].sort((a, b) => {
+                        return new Date(b.timestamp) - new Date(a.timestamp);
+                    });
                 }
             },
 
@@ -2240,7 +2247,20 @@
                 async deleteChat(index) {
                     if(confirm('确定要删除这条聊天记录吗？')) {
                         try {
-                            await db.ref(`chatRecords/${index}`).remove();
+                            // 获取所有聊天记录的键
+                            const snapshot = await db.ref('chatRecords').once('value');
+                            const chats = snapshot.val();
+                            if (!chats) return;
+                            
+                            // 获取所有键
+                            const keys = Object.keys(chats);
+                            // 由于显示时是按时间倒序排列，所以需要反转索引
+                            const keyToDelete = keys[keys.length - 1 - index];
+                            
+                            // 删除指定记录
+                            await db.ref(`chatRecords/${keyToDelete}`).remove();
+                            
+                            // 重新加载数据
                             await this.loadStoredData();
                         } catch (error) {
                             console.error('删除失败:', error);
