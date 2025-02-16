@@ -26,47 +26,77 @@
             padding-top: 60px;
         }
 
-        /* 导航栏基础样式（电脑端） */
+        /* 导航栏基础样式 */
         .nav-bar {
             position: fixed;
             top: 0;
             width: 100%;
             background: linear-gradient(to right, #8584d8, #9c9beb);
-            padding: 0.8rem 2rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 0.8rem 1.5rem;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.15);
             z-index: 1000;
             display: flex;
             align-items: center;
-            gap: 2rem;
+            justify-content: center; /* 修改为居中对齐 */
+            gap: 1.5rem;
+            box-sizing: border-box;
         }
 
         .nav-logo {
             height: 35px;
             width: auto;
+            margin-right: 1rem;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+            transition: all 0.3s ease;
         }
 
         .nav-links {
             display: flex;
             align-items: center;
-            gap: 1.5rem;
-            margin-left: auto; /* 将链接推到右边 */
+            gap: 1.2rem;
+            justify-content: center; /* 修改为居中对齐 */
+            margin: 0; /* 移除左边距 */
+        }
+
+        /* 添加导航栏容器限制最大宽度 */
+        @media (min-width: 1024px) {
+            .nav-bar {
+                padding: 0.8rem calc((100% - 1200px) / 2); /* 添加动态内边距使内容居中 */
+            }
         }
 
         /* 修改导航链接样式 */
         .nav-link {
             color: white;
             text-decoration: none;
-            padding: 0.5rem 1rem;
+            padding: 0.5rem 0.8rem; /* 减小内边距使链接更紧凑 */
             border-radius: 20px;
             transition: all 0.3s;
-            font-size: 0.95rem; /* 稍微调整字体大小 */
-            opacity: 0.9; /* 默认稍微透明 */
+            font-size: 0.95rem;
+            opacity: 0.85;
+            position: relative; /* 为下划线效果添加定位 */
         }
 
         .nav-link:hover {
             opacity: 1;
-            background: rgba(255, 255, 255, 0.1); /* 添加悬停效果 */
+            background: rgba(255, 255, 255, 0.15);
             transform: translateY(-1px);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after {
+            width: 70%; /* 悬停时显示下划线 */
         }
 
         .section {
@@ -779,26 +809,44 @@
             right: 5px;
         }
 
+        /* 修改图片预览项样式 */
         .image-preview-item {
             position: relative;
             display: inline-block;
         }
 
+        /* 统一删除按钮样式 */
         .remove-image-btn {
             position: absolute;
-            top: -5px;
-            right: -5px;
+            top: -10px;
+            right: -10px;
+            width: 20px;
+            height: 20px;
             background: red;
             color: white;
             border: none;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+            z-index: 3;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .remove-image-btn:hover {
+            transform: scale(1.1);
+            background: #ff0000;
+        }
+
+        .remove-image-btn:disabled {
+            background: #999;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .upload-indicator {
@@ -848,49 +896,112 @@
             color: #666;
         }
 
+        /* 音频预览容器样式 */
         .audio-preview-container {
-            margin: 1rem 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 1rem auto; /* 改为 auto 实现水平居中 */
+            width: 90%; /* 稍微减小宽度 */
+            justify-content: center; /* 确保内容居中 */
+        }
+
+        /* 修改音频项样式 */
+        .audio-item {
+            position: relative;
+            width: calc(50% - 10px);
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            align-items: center;
         }
 
-        .audio-item {
-            width: 100%;
-            margin: 0.8rem 0;
-            padding: 1rem;
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
-        }
-
-        .audio-wrapper {
-            position: relative;
-            width: 100%;
-            margin: 0.5rem 0;
-            padding: 0.5rem;
-            background: #f8f9fa;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
+        /* 音频名称样式 */
         .audio-name {
-            font-size: 0.9rem;
-            color: #333;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            display: block;
+            font-size: 0.85rem;
+            color: #8584d8;
+            margin-bottom: 0.8rem;
+            padding-right: 20px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            width: 100%; /* 确保文本宽度占满 */
+            text-align: center; /* 文本居中 */
+        }
+
+        /* 音频包装器样式 */
+        .audio-wrapper {
+            background: rgba(133, 132, 216, 0.03);
+            border-radius: 8px;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            width: 100%;
+        }
+
+        /* 统一删除按钮样式 */
+        .remove-audio-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 20px;
+            height: 20px;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+            z-index: 3;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .remove-audio-btn:hover {
+            transform: scale(1.1);
+            background: #ff0000;
+        }
+
+        .remove-audio-btn:disabled {
+            background: #999;
+            cursor: not-allowed;
+            transform: none;
         }
 
         /* 自定义音频播放器样式 */
         audio {
-            width: 100% !important;
+            width: 95% !important;
             height: 36px !important;
             border-radius: 8px !important;
+            display: block !important;
+            margin: 0 auto !important;
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .audio-item {
+                width: 100%;
+                margin: 0.8rem auto;
+                padding: 0.8rem;
+            }
+
+            .audio-name {
+                font-size: 0.85rem;
+                padding: 0 0.3rem;
+                text-align: left; /* 移动端文本左对齐 */
+            }
+
+            audio {
+                width: 100% !important;
+            }
         }
 
         /* 音频播放器控件样式 */
@@ -899,10 +1010,41 @@
             border-radius: 8px !important;
         }
 
+        audio::-webkit-media-controls-enclosure {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            width: 100% !important;
+        }
+
+        /* 确保音频控件容器居中 */
+        audio::-webkit-media-controls {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            width: 100% !important;
+        }
+
+        /* 修改播放按钮样式 */
         audio::-webkit-media-controls-play-button {
+            width: 24px !important;
+            height: 24px !important;
+            min-width: 24px !important;
+            min-height: 24px !important;
+            max-width: 24px !important;
+            max-height: 24px !important;
             background-color: #9B59B6 !important;
             border-radius: 50% !important;
-            transform: scale(1.2) !important;
+            transition: all 0.2s ease !important;
+            margin: 0 8px !important;
+            padding: 0 !important;
+            flex: 0 0 24px !important; /* 防止 flex 布局改变尺寸 */
+        }
+
+        /* 添加悬停效果 */
+        audio::-webkit-media-controls-play-button:hover {
+            background-color: #8e44ad !important;
+            transform: scale(1.1) !important;
         }
 
         audio::-webkit-media-controls-timeline {
@@ -1065,8 +1207,6 @@
                 flex-direction: column;
                 padding: 0.5rem 1rem;
                 gap: 0.5rem;
-                width: 100%;
-                box-sizing: border-box;
             }
 
             .nav-logo {
@@ -1648,6 +1788,134 @@
         }
 
         /* 修改 HTML 结构中的音频部分 */
+        .audio-item {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin: 1rem 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .audio-name {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.8rem;
+            font-weight: 500;
+        }
+
+        .audio-wrapper {
+            position: relative;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 0.5rem;
+            overflow: hidden;
+        }
+
+        /* 自定义音频播放器样式 - 桌面端 */
+        @media (min-width: 769px) {
+            /* 音频容器尺寸限制 */
+            .audio-preview-container {
+                max-width: 600px; /* 减小最大宽度 */
+                margin: 1rem auto;
+            }
+
+            .audio-item {
+                padding: 0.8rem; /* 减小内边距 */
+                margin: 0.8rem 0;
+                background: rgba(255, 255, 255, 0.9);
+            }
+
+            .audio-wrapper {
+                background: rgba(133, 132, 216, 0.03); /* 使用导航栏颜色但透明度很低 */
+                padding: 0.3rem;
+            }
+
+            audio {
+                width: 100% !important;
+                height: 36px !important; /* 减小高度 */
+                background: transparent !important;
+            }
+
+            /* 音频控制面板 */
+            audio::-webkit-media-controls-panel {
+                background: linear-gradient(to right, rgba(133, 132, 216, 0.05), rgba(156, 155, 235, 0.05)) !important;
+                border-radius: 8px !important;
+                padding: 0 8px !important;
+            }
+
+            /* 播放按钮 */
+            audio::-webkit-media-controls-play-button {
+                background-color: rgba(133, 132, 216, 0.8) !important; /* 使用导航栏颜色 */
+                border-radius: 50% !important;
+                transform: scale(1.1) !important;
+            }
+
+            audio::-webkit-media-controls-play-button:hover {
+                transform: scale(1.2) !important;
+                background-color: rgba(156, 155, 235, 0.9) !important; /* 使用导航栏渐变的第二个颜色 */
+            }
+
+            /* 进度条 */
+            audio::-webkit-media-controls-timeline {
+                background-color: rgba(133, 132, 216, 0.1) !important;
+                border-radius: 8px !important;
+                height: 3px !important; /* 减小高度 */
+                margin: 0 8px !important;
+            }
+
+            audio::-webkit-media-controls-timeline:hover {
+                height: 4px !important;
+            }
+
+            /* 时间显示 */
+            audio::-webkit-media-controls-current-time-display,
+            audio::-webkit-media-controls-time-remaining-display {
+                color: #8584d8 !important; /* 使用导航栏颜色 */
+                font-size: 12px !important; /* 减小字体 */
+                opacity: 0.8;
+            }
+
+            /* 音量控制 */
+            audio::-webkit-media-controls-volume-slider {
+                background-color: rgba(133, 132, 216, 0.1) !important;
+                border-radius: 8px !important;
+                padding: 0 4px !important;
+            }
+
+            audio::-webkit-media-controls-volume-slider:hover {
+                background-color: rgba(133, 132, 216, 0.15) !important;
+            }
+
+            audio::-webkit-media-controls-mute-button {
+                transform: scale(1) !important;
+                opacity: 0.8;
+            }
+
+            audio::-webkit-media-controls-mute-button:hover {
+                transform: scale(1.1) !important;
+                opacity: 1;
+            }
+
+            /* 音频名称样式 */
+            .audio-name {
+                font-size: 0.85rem; /* 减小字体 */
+                color: #8584d8; /* 使用导航栏颜色 */
+                margin-bottom: 0.5rem;
+                opacity: 0.8;
+            }
+
+            /* 音频项目悬停效果 */
+            .audio-item:hover {
+                transform: translateY(-1px); /* 减小悬停效果 */
+                box-shadow: 0 3px 8px rgba(133, 132, 216, 0.1);
+            }
+        }
+
+        /* 保持移动端样式不变 */
+        @media (max-width: 768px) {
+            /* ... 保持原有的移动端样式 ... */
+        }
     </style>
 </head>
 <body>
@@ -1862,7 +2130,7 @@
                                                 <div class="upload-progress-bar" :style="{ width: (audio.uploadProgress || 0) + '%' }"></div>
                                             </div>
                                         </div>
-                                        <button @click="removePrivateAudio(index)" 
+                                        <button @click="removePrivateAudio(audioIndex)" 
                                                 class="remove-audio-btn"
                                                 :disabled="audio.isUploading">×</button>
                                     </div>
@@ -2786,10 +3054,18 @@
                     }
                 },
 
-                removePrivateImage(index) {
-                    if (Array.isArray(this.newPrivateEntry.images)) {
-                        this.newPrivateEntry.images = this.newPrivateEntry.images.filter((_, i) => i !== index);
+                removeImage(index) {
+                    if (this.newEntry.images[index].isUploading) {
+                        return; // 如果正在上传，不允许删除
                     }
+                    this.newEntry.images.splice(index, 1);
+                },
+
+                removePrivateImage(index) {
+                    if (this.newPrivateEntry.images[index].isUploading) {
+                        return; // 如果正在上传，不允许删除
+                    }
+                    this.newPrivateEntry.images.splice(index, 1);
                 },
 
                 async openPrivateEditModal(index) {
@@ -2924,9 +3200,9 @@
                 // 添加音频删除方法
                 removePrivateAudio(index) {
                     if (this.newPrivateEntry.audios[index].isUploading) {
-                        return;
+                        return; // 如果正在上传，不允许删除
                     }
-                    this.newPrivateEntry.audios = this.newPrivateEntry.audios.filter((_, i) => i !== index);
+                    this.newPrivateEntry.audios.splice(index, 1);
                 },
                 // 添加数据迁移方法
                 async migrateLocalDataToFirebase() {
