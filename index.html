@@ -1259,6 +1259,149 @@
                 -webkit-overflow-scrolling: touch;
             }
         }
+
+        /* 移动端音频播放器优化 - 特别针对安卓 */
+        @media (max-width: 768px) {
+            .audio-item {
+                flex-direction: column;
+                padding: 1rem;
+                margin: 0.8rem auto; /* 使用 auto 实现居中 */
+                background: #fff;
+                border-radius: 8px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                max-width: 90%; /* 限制最大宽度 */
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .audio-item audio {
+                width: 100%;
+                height: 40px;
+                margin: 0.5rem 0;
+                border: 1px solid #eee;
+                border-radius: 8px;
+                background-color: #f5f5f5;
+                -webkit-appearance: none;
+                appearance: none;
+            }
+
+            /* 安卓音频播放器特殊处理 */
+            audio::-webkit-media-controls-panel,
+            audio::-webkit-media-controls-enclosure,
+            audio::-webkit-media-controls,
+            audio::-webkit-media-controls-play-button {
+                background-color: #f5f5f5;
+                border-radius: 8px;
+                padding: 0;
+                height: 40px;
+            }
+        }
+
+        /* 聊天记录卡片布局优化 */
+        @media (max-width: 768px) {
+            .chat-section {
+                padding: 1rem;
+                box-sizing: border-box;
+            }
+
+            .chat-list {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                max-width: 90%; /* 限制最大宽度 */
+                margin: 0 auto;
+                padding: 0;
+            }
+
+            .chat-card {
+                width: 100% !important;
+                margin: 0.5rem 0;
+                padding: 1rem;
+                border-radius: 10px;
+                background: #fff;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                box-sizing: border-box;
+            }
+
+            .chat-content {
+                font-size: 0.95rem;
+                line-height: 1.6;
+                padding: 0.5rem;
+                word-break: break-word;
+            }
+        }
+
+        /* 模态框布局优化 */
+        @media (max-width: 768px) {
+            .modal-overlay {
+                padding: 0;
+                background: rgba(0, 0, 0, 0.8);
+            }
+
+            .card-modal {
+                width: 100%;
+                height: 100vh;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                background: #fff;
+            }
+
+            .modal-content {
+                flex: 1;
+                padding: 1rem;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                background: #f8f9fa;
+            }
+
+            .title-input,
+            .content-input {
+                width: 90%; /* 限制输入框宽度 */
+                max-width: 600px;
+                margin: 0.5rem auto;
+                padding: 0.8rem;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                font-size: 16px;
+                background: #fff;
+                display: block; /* 确保居中 */
+            }
+
+            .content-input {
+                min-height: 150px;
+                line-height: 1.6;
+            }
+
+            /* 图片和音频预览区域优化 */
+            .image-preview-container,
+            .audio-preview-container {
+                width: 90%;
+                max-width: 600px;
+                margin: 1rem auto;
+                padding: 0.8rem;
+                background: #fff;
+                border-radius: 8px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            }
+
+            .modal-actions {
+                padding: 1rem;
+                background: #fff;
+                border-top: 1px solid #eee;
+                display: flex;
+                justify-content: center;
+                gap: 1rem;
+            }
+
+            .modal-actions button {
+                min-width: 100px;
+                padding: 0.8rem 1.5rem;
+                border-radius: 8px;
+                font-size: 16px;
+            }
+        }
     </style>
 </head>
 <body>
