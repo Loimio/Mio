@@ -1917,6 +1917,28 @@
         @media (max-width: 768px) {
             /* ... 保持原有的移动端样式 ... */
         }
+
+        /* 修改桌面端音频预览容器样式 */
+        @media (min-width: 769px) {
+            .audio-preview-container {
+                max-width: 350px; /* 修改这里：从 250px 改为 350px */
+                margin: 1rem 0;
+                align-items: flex-start;
+            }
+
+            .audio-item {
+                width: 100%;
+                margin: 0.8rem 0;
+                padding: 0.8rem;
+                background: rgba(255, 255, 255, 0.9);
+            }
+
+            /* 修改音频播放器宽度 */
+            audio {
+                width: 350px !important; /* 修改这里：从 250px 改为 350px */
+                min-width: 350px !important; /* 修改这里：从 250px 改为 350px */
+            }
+        }
     </style>
 </head>
 <body>
