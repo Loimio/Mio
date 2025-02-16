@@ -577,12 +577,12 @@
         }
 
         .chat-list {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            max-width: 95%; /* 增加宽度 */
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 默认两列布局 */
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 0;
         }
 
         /* 聊天记录输入区域样式 */
