@@ -1402,6 +1402,134 @@
                 font-size: 16px;
             }
         }
+
+        /* 聊天记录版块优化 */
+        @media (max-width: 768px) {
+            /* 聊天记录容器 */
+            .chat-section {
+                padding: 1rem;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            /* 聊天记录列表 */
+            .chat-list {
+                width: 95%; /* 增加宽度 */
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            /* 聊天记录卡片 */
+            .chat-card {
+                width: 100% !important;
+                margin: 0.5rem 0;
+                padding: 1rem;
+                border-radius: 10px;
+                background: #fff;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                box-sizing: border-box;
+            }
+
+            /* 聊天记录输入区域 */
+            .chat-input-container {
+                width: 95%;
+                max-width: 600px;
+                margin: 1rem auto;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            .chat-input {
+                width: 100%;
+                padding: 0.8rem;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                font-size: 16px;
+                background: #fff;
+                box-sizing: border-box;
+                margin-bottom: 0.5rem;
+            }
+
+            .chat-submit {
+                width: 100%;
+                padding: 0.8rem;
+                background: var(--primary-color);
+                color: white;
+                border: none;
+                border-radius: 8px;
+                font-size: 16px;
+            }
+        }
+
+        /* 音频播放器优化 - 特别针对安卓 */
+        @media (max-width: 768px) {
+            .audio-item {
+                width: 95%;
+                max-width: 600px;
+                margin: 0.8rem auto;
+                padding: 1rem;
+                background: #fff;
+                border-radius: 8px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                box-sizing: border-box;
+            }
+
+            /* 音频元素容器 */
+            .audio-container {
+                width: 100%;
+                margin: 0.5rem 0;
+                padding: 0.5rem;
+                background: #f5f5f5;
+                border-radius: 8px;
+                box-sizing: border-box;
+            }
+
+            /* 音频元素样式 */
+            audio {
+                width: 100% !important;
+                height: 40px !important;
+                margin: 0 !important;
+                border-radius: 20px !important;
+                background: #f5f5f5 !important;
+            }
+
+            /* 安卓音频播放器特殊处理 */
+            audio::-webkit-media-controls,
+            audio::-webkit-media-controls-panel,
+            audio::-webkit-media-controls-enclosure,
+            audio::-webkit-media-controls-play-button,
+            audio::-webkit-media-controls-timeline,
+            audio::-webkit-media-controls-current-time-display,
+            audio::-webkit-media-controls-time-remaining-display,
+            audio::-webkit-media-controls-timeline-container,
+            audio::-webkit-media-controls-volume-slider-container,
+            audio::-webkit-media-controls-volume-slider,
+            audio::-webkit-media-controls-seek-back-button,
+            audio::-webkit-media-controls-seek-forward-button,
+            audio::-webkit-media-controls-fullscreen-button,
+            audio::-webkit-media-controls-rewind-button,
+            audio::-webkit-media-controls-return-to-realtime-button,
+            audio::-webkit-media-controls-toggle-closed-captions-button {
+                display: flex !important;
+                background: #f5f5f5 !important;
+                border-radius: 20px !important;
+                height: 40px !important;
+            }
+
+            /* 音频名称样式 */
+            .audio-name {
+                font-size: 0.9rem;
+                color: #333;
+                margin: 0.5rem 0;
+                word-break: break-word;
+            }
+        }
+
+        /* 修改 HTML 结构中的音频部分 */
     </style>
 </head>
 <body>
