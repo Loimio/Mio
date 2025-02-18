@@ -14,9 +14,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Create Mio directory
-        run: mkdir -p Mio
-
       - name: Generate config file
         run: |
           echo "const config = {
@@ -35,7 +32,7 @@ jobs:
               apiKey: '${CLOUDINARY_API_KEY}',
               apiSecret: '${CLOUDINARY_API_SECRET}'
             }
-          };" > Mio/config.js
+          };" > config.js
         env:
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
           FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
@@ -49,29 +46,20 @@ jobs:
           CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
           CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
 
-      - name: Copy files to Mio directory
-        run: |
-          cp index.html Mio/
-          cp -r .github Mio/
-          cp .gitignore Mio/
-          cp .env.example Mio/
-          cp config.example.js Mio/
-          touch Mio/.nojekyll
+      - name: Create .nojekyll
+        run: touch .nojekyll
 
-      - name: List Mio contents
+      - name: List files
         run: |
           echo "Files to be deployed:"
-          ls -la Mio/
+          ls -la
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./Mio
+          publish_dir: .
           force_orphan: true
-
-      - name: Wait for deployment
-        run: sleep 30
 
       - name: Check deployment
         run: |
