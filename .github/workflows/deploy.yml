@@ -15,6 +15,7 @@ jobs:
 
       - name: Generate config
         run: |
+          echo "Generating config.js..."
           cat > config.js << 'EOF'
           const config = {
             firebase: {
@@ -34,12 +35,21 @@ jobs:
             }
           };
           EOF
+          echo "Config.js generated. Content:"
+          cat config.js
+          echo "Current directory contents:"
+          ls -la
 
-      - name: List files
-        run: ls -la
+      - name: Prepare deployment
+        run: |
+          echo "Files to be deployed:"
+          ls -la
+          echo "Creating .nojekyll"
+          touch .nojekyll
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: . 
+          publish_dir: .
+          force_orphan: true 
