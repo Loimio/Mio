@@ -36,11 +36,12 @@ jobs:
           };
           EOL
 
-      - name: Prepare deployment
+      - name: List files
         run: |
-          cp config.js ./config.js
           echo "Files to be deployed:"
           ls -la
+          echo "Config.js contents:"
+          cat config.js
 
       - name: Create .nojekyll
         run: touch .nojekyll
