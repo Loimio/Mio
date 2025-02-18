@@ -55,12 +55,10 @@ jobs:
           publish_dir: .
           force_orphan: true
 
-      - name: Verify deployment
+      - name: Wait for deployment
+        run: sleep 30
+
+      - name: Check deployment
         run: |
-          echo "Checking gh-pages branch..."
-          git fetch origin gh-pages
-          git checkout gh-pages
-          echo "Files in gh-pages branch:"
-          ls -la
-          echo "Looking for config.js:"
-          find . -name config.js 
+          echo "Checking if config.js is accessible..."
+          curl -I https://loimio.github.io/Mio/config.js 
