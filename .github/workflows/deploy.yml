@@ -61,8 +61,14 @@ jobs:
       - name: Create deployment directory
         run: |
           mkdir deploy
-          cp -r * deploy/
+          cp index.html deploy/
+          cp config.js deploy/
           cp .nojekyll deploy/
+          cp -r .github deploy/
+          cp .gitignore deploy/
+          cp .env.example deploy/
+          cp config.example.js deploy/
+          echo "Deployment directory contents:"
           ls -la deploy/
 
       - name: Deploy to GitHub Pages
