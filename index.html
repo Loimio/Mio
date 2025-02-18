@@ -4,14 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>风痕·旅行者与流浪者</title>
-    <!-- 使用在线图片链接嘿 -->
+    <!-- 使用在线图片链接 -->
     <link rel="icon" href="https://files.catbox.moe/5bqosu.png" type="image/png">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <!-- 添加 Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-    <!-- 添加配置文件哟 -->
-    <script src="./config.js"></script>
     <style>
         :root {
             --primary-color: #9B59B6;
@@ -29,7 +27,7 @@
             padding-top: 60px;
         }
 
-        /* 导航栏基础样式哈 */
+        /* 导航栏基础样式 */
         .nav-bar {
             position: fixed;
             top: 0;
@@ -61,7 +59,7 @@
             margin: 0; /* 移除左边距 */
         }
 
-        /* 添加导航栏容器限制最大宽度呢 */
+        /* 添加导航栏容器限制最大宽度 */
         @media (min-width: 1024px) {
             .nav-bar {
                 padding: 0.8rem calc((100% - 1200px) / 2); /* 添加动态内边距使内容居中 */
@@ -2255,13 +2253,17 @@
     </div>
 
     <script>
-        // 使用配置
-        const firebaseConfig = config.firebase;
-        // ...其他代码
-        
-        // 替换所有 process.env 的使用
-        const cloudName = config.cloudinary.cloudName;
-        // ...
+        // 初始化 Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDC8Aud6B-hQBtjrOY-4-9DVWp39X3jSDI",
+            authDomain: "loimio-7f12e.firebaseapp.com",
+            databaseURL: "https://loimio-7f12e-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "loimio-7f12e",
+            storageBucket: "loimio-7f12e.firebasestorage.app",
+            messagingSenderId: "930247682950",
+            appId: "1:930247682950:web:356f7f96ebaa5bd96b5a07",
+            measurementId: "G-EBQQ2QBZ9T"
+        };
 
         // 初始化 Firebase
         firebase.initializeApp(firebaseConfig);
@@ -2957,7 +2959,7 @@
                     try {
                         console.log('开始上传图片到Cloudinary...');
                         
-                        const cloudName = config.cloudinary.cloudName;
+                        const cloudName = 'dmxfneyiq';
                         const uploadPreset = 'Loimio';
                         
                         const formData = new FormData();
@@ -3004,9 +3006,9 @@
                 async deleteFromCloud(publicId, resourceType = 'image') {
                     try {
                         console.log(`开始删除${resourceType}:`, publicId);
-                        const cloudName = config.cloudinary.cloudName;
-                        const apiKey = config.cloudinary.apiKey;
-                        const apiSecret = config.cloudinary.apiSecret;
+                        const cloudName = 'dmxfneyiq';
+                        const apiKey = '296378856621354';
+                        const apiSecret = 'I5t5EvhTivzs-DziespE6NmbWF4';
                         const timestamp = Math.round(new Date().getTime() / 1000);
                         
                         // 构建基本参数
@@ -3294,7 +3296,7 @@
                 // 修改音频数据处理
                 async uploadToCloudinary(file) {
                     try {
-                        const cloudName = config.cloudinary.cloudName;
+                        const cloudName = 'dmxfneyiq';
                         const uploadPreset = 'Loimio';
                         
                         const formData = new FormData();
@@ -3521,7 +3523,7 @@
                             return;
                         }
                     } else {
-                        // 如果是新建记录的话
+                        // 如果是新建记录
                         this.editingIndex = -1;
                         this.newEntry = {
                             title: '',
