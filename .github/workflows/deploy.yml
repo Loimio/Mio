@@ -36,11 +36,13 @@ jobs:
           };
           EOL
 
-      - name: List files
+      - name: List files before deploy
         run: |
-          echo "Files to be deployed:"
+          echo "Current directory contents before deploy:"
+          pwd
           ls -la
-          echo "Config.js contents:"
+          echo "Config.js location and contents:"
+          find . -name config.js
           cat config.js
 
       - name: Create .nojekyll
@@ -51,4 +53,14 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: .
-          force_orphan: true 
+          force_orphan: true
+
+      - name: Verify deployment
+        run: |
+          echo "Checking gh-pages branch..."
+          git fetch origin gh-pages
+          git checkout gh-pages
+          echo "Files in gh-pages branch:"
+          ls -la
+          echo "Looking for config.js:"
+          find . -name config.js 
