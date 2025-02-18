@@ -58,6 +58,14 @@ jobs:
       - name: Create .nojekyll
         run: touch .nojekyll
 
+      - name: Prepare for deployment
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add config.js
+          git add .nojekyll
+          git commit -m "Add config.js and .nojekyll" || echo "No changes to commit"
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
@@ -65,9 +73,10 @@ jobs:
           publish_dir: .
           force_orphan: true
           commit_message: "Deploy with config.js"
+          enable_jekyll: false
 
       - name: Verify deployment
         run: |
-          sleep 10
+          sleep 30
           echo "Checking deployment..."
           curl -I https://loimio.github.io/Mio/config.js || true 
