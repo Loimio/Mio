@@ -14,14 +14,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
+      - name: Create Mio directory
+        run: mkdir -p Mio
 
       - name: Generate config file
         run: |
-          mkdir -p dist
           echo "const config = {
             firebase: {
               apiKey: '${FIREBASE_API_KEY}',
@@ -38,7 +35,7 @@ jobs:
               apiKey: '${CLOUDINARY_API_KEY}',
               apiSecret: '${CLOUDINARY_API_SECRET}'
             }
-          };" > dist/config.js
+          };" > Mio/config.js
         env:
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
           FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
@@ -52,25 +49,25 @@ jobs:
           CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
           CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
 
-      - name: Copy files to dist
+      - name: Copy files to Mio directory
         run: |
-          cp index.html dist/
-          cp -r .github dist/
-          cp .gitignore dist/
-          cp .env.example dist/
-          cp config.example.js dist/
-          touch dist/.nojekyll
+          cp index.html Mio/
+          cp -r .github Mio/
+          cp .gitignore Mio/
+          cp .env.example Mio/
+          cp config.example.js Mio/
+          touch Mio/.nojekyll
 
-      - name: List dist contents
+      - name: List Mio contents
         run: |
           echo "Files to be deployed:"
-          ls -la dist/
+          ls -la Mio/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          publish_dir: ./Mio
           force_orphan: true
 
       - name: Wait for deployment
@@ -79,4 +76,6 @@ jobs:
       - name: Check deployment
         run: |
           echo "Checking if config.js is accessible..."
-          curl -I https://loimio.github.io/Mio/config.js 
+          curl -I https://loimio.github.io/Mio/config.js || true
+          echo "Checking directory contents..."
+          curl -I https://loimio.github.io/Mio/ || true 
