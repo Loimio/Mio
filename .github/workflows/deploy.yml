@@ -16,6 +16,7 @@ jobs:
 
       - name: Generate config file
         run: |
+          echo "Generating config.js..."
           echo "const config = {
             firebase: {
               apiKey: '${FIREBASE_API_KEY}',
@@ -33,6 +34,7 @@ jobs:
               apiSecret: '${CLOUDINARY_API_SECRET}'
             }
           };" > config.js
+          echo "Config.js generated successfully"
         env:
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
           FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
@@ -46,12 +48,12 @@ jobs:
           CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
           CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
 
-      - name: Verify config file
+      - name: Verify files before deploy
         run: |
-          echo "Config file contents:"
-          cat config.js
           echo "Current directory contents:"
           ls -la
+          echo "Config.js contents:"
+          cat config.js
 
       - name: Create .nojekyll
         run: touch .nojekyll
@@ -62,16 +64,10 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: .
           force_orphan: true
+          commit_message: "Deploy with config.js"
 
-      - name: Checkout gh-pages
-        uses: actions/checkout@v2
-        with:
-          ref: gh-pages
-          clean: false
-
-      - name: Check gh-pages contents
+      - name: Verify deployment
         run: |
-          echo "Files in gh-pages branch:"
-          ls -la
-          echo "Looking for config.js:"
-          find . -name config.js 
+          sleep 10
+          echo "Checking deployment..."
+          curl -I https://loimio.github.io/Mio/config.js || true 
