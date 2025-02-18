@@ -10,6 +10,8 @@
     <!-- 添加 Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <!-- 添加配置文件 -->
+    <script src="config.js"></script>
     <style>
         :root {
             --primary-color: #9B59B6;
@@ -2253,17 +2255,13 @@
     </div>
 
     <script>
-        // 初始化 Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyDC8Aud6B-hQBtjrOY-4-9DVWp39X3jSDI",
-            authDomain: "loimio-7f12e.firebaseapp.com",
-            databaseURL: "https://loimio-7f12e-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "loimio-7f12e",
-            storageBucket: "loimio-7f12e.firebasestorage.app",
-            messagingSenderId: "930247682950",
-            appId: "1:930247682950:web:356f7f96ebaa5bd96b5a07",
-            measurementId: "G-EBQQ2QBZ9T"
-        };
+        // 使用配置
+        const firebaseConfig = config.firebase;
+        // ...其他代码
+        
+        // 替换所有 process.env 的使用
+        const cloudName = config.cloudinary.cloudName;
+        // ...
 
         // 初始化 Firebase
         firebase.initializeApp(firebaseConfig);
@@ -2959,7 +2957,7 @@
                     try {
                         console.log('开始上传图片到Cloudinary...');
                         
-                        const cloudName = 'dmxfneyiq';
+                        const cloudName = config.cloudinary.cloudName;
                         const uploadPreset = 'Loimio';
                         
                         const formData = new FormData();
@@ -3006,9 +3004,9 @@
                 async deleteFromCloud(publicId, resourceType = 'image') {
                     try {
                         console.log(`开始删除${resourceType}:`, publicId);
-                        const cloudName = 'dmxfneyiq';
-                        const apiKey = '296378856621354';
-                        const apiSecret = 'I5t5EvhTivzs-DziespE6NmbWF4';
+                        const cloudName = config.cloudinary.cloudName;
+                        const apiKey = config.cloudinary.apiKey;
+                        const apiSecret = config.cloudinary.apiSecret;
                         const timestamp = Math.round(new Date().getTime() / 1000);
                         
                         // 构建基本参数
@@ -3296,7 +3294,7 @@
                 // 修改音频数据处理
                 async uploadToCloudinary(file) {
                     try {
-                        const cloudName = 'dmxfneyiq';
+                        const cloudName = config.cloudinary.cloudName;
                         const uploadPreset = 'Loimio';
                         
                         const formData = new FormData();
