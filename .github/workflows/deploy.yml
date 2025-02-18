@@ -14,8 +14,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
       - name: Generate config file
         run: |
+          mkdir -p dist
           echo "const config = {
             firebase: {
               apiKey: '${FIREBASE_API_KEY}',
@@ -32,7 +38,7 @@ jobs:
               apiKey: '${CLOUDINARY_API_KEY}',
               apiSecret: '${CLOUDINARY_API_SECRET}'
             }
-          };" > config.js
+          };" > dist/config.js
         env:
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
           FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
@@ -46,23 +52,25 @@ jobs:
           CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
           CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
 
-      - name: List files before deploy
+      - name: Copy files to dist
         run: |
-          echo "Current directory contents before deploy:"
-          pwd
-          ls -la
-          echo "Config.js location and contents:"
-          find . -name config.js
-          cat config.js
+          cp index.html dist/
+          cp -r .github dist/
+          cp .gitignore dist/
+          cp .env.example dist/
+          cp config.example.js dist/
+          touch dist/.nojekyll
 
-      - name: Create .nojekyll
-        run: touch .nojekyll
+      - name: List dist contents
+        run: |
+          echo "Files to be deployed:"
+          ls -la dist/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
+          publish_dir: ./dist
           force_orphan: true
 
       - name: Wait for deployment
